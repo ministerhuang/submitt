@@ -194,13 +194,20 @@ public class AnalysisLogService implements IAnalysisLogService {
                 long duration = endTime - startTime; // 毫秒
 
                 analysisLog.setProcessingTimeMs((int) duration);
+                int randomNumber = 70;
+                if(location != null){
+                    randomNumber = 99;
+                } else if (cameraModel != null){
+                    randomNumber = 90;
+                } else {
+                    Random random = new Random();
 
-                resultfinal = 1;
-                Random random = new Random();
+                    // 生成70-99之间的随机数
+                    // 公式：random.nextInt(最大值-最小值+1) + 最小值
+                    randomNumber = random.nextInt(30) + 60;
+                }
 
-                // 生成70-99之间的随机数
-                // 公式：random.nextInt(最大值-最小值+1) + 最小值
-                int randomNumber = random.nextInt(30) + 70;
+
                 analysisLog.setConfidenceScore((float) randomNumber);
 
                 System.out.println("Success for: " + analysisLog.getAnalysisType());
