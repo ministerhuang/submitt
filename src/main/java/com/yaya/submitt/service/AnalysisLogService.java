@@ -43,7 +43,8 @@ public class AnalysisLogService implements IAnalysisLogService {
 
     @Override
     public AnalysisLog addByNews(String inputText, String mediaName) {
-        String API_URL = "https://ai-vs-human-api.onrender.com/predict";
+        //String API_URL = "https://ai-vs-human-api.onrender.com/predict";
+        String API_URL = "http://45.204.202.172:8000/predict";
 
         RestTemplate restTemplate = new RestTemplate();
         TextRequest textRequest = new TextRequest(inputText);
@@ -172,7 +173,8 @@ public class AnalysisLogService implements IAnalysisLogService {
 
     @Override
     public AnalysisLog addByImage(MultipartFile file) {
-        String API_URL = "https://mini-vgg-model.onrender.com/predict";
+        //String API_URL = "https://mini-vgg-model.onrender.com/predict";
+        String API_URL = "http://45.204.202.172:5001/predict";
         RestTemplate restTemplate = new RestTemplate();
         ObjectMapper objectMapper = new ObjectMapper();
         String resultSummary = "";
