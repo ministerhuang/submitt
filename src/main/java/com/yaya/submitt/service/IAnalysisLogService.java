@@ -14,4 +14,9 @@ public interface  IAnalysisLogService {
 
     AnalysisLog addByImage(MultipartFile file);
 
+    String get_most_website();
+
+    String get_most_feature();
+
+    String get_most_bias();
 }

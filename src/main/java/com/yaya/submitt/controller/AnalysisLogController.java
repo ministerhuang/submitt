@@ -47,4 +47,35 @@ public class AnalysisLogController {
         AnalysisLog analysisLogNew = analysisLogService.addByImage(file);
         return ResponseMessage.success(analysisLogNew);
     }
+
+    @GetMapping("/getMostUseWebsite")
+    public ResponseMessage<String> getMostUseWebsite() {
+        String most_website = analysisLogService.get_most_website();
+        if (most_website.isEmpty()) {
+            return ResponseMessage.error("No data found");
+        } else{
+            return ResponseMessage.success(most_website);
+        }
+    }
+
+    @GetMapping("/getMostPopularFeature")
+    public ResponseMessage<String> getMostPopularFeature() {
+        String most_feature = analysisLogService.get_most_feature();
+        if (most_feature.isEmpty()) {
+            return ResponseMessage.error("No data found");
+        } else{
+            return ResponseMessage.success(most_feature);
+        }
+    }
+
+    @GetMapping("/getMostCommonBias")
+    public ResponseMessage<String> getMostCommonBias() {
+        String most_bias = analysisLogService.get_most_bias();
+        if (most_bias.isEmpty()) {
+            return ResponseMessage.error("No data found");
+        } else{
+            return ResponseMessage.success(most_bias);
+        }
+    }
+
 }

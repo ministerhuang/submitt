@@ -285,4 +285,21 @@ public class AnalysisLogService implements IAnalysisLogService {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public String get_most_website() {
+        return analysisLogRepository.findTopWebsiteDomain();
+    }
+
+    @Override
+    public String get_most_feature() {
+        return analysisLogRepository.findTopAnalysisType();
+    }
+
+    @Override
+    public String get_most_bias() {
+        //return analysisLogRepository.findTopAnalysisType();
+        return Integer.toString(32);
+    }
+
 }
