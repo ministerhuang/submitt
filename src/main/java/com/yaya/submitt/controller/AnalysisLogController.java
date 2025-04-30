@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.UnknownHostException;
+
 @RestController //接口方法返回对象，转换成json格式
 @RequestMapping("/analysislog") //localhost:8088/analysislog/
 public class AnalysisLogController {
@@ -34,7 +36,7 @@ public class AnalysisLogController {
     }
 
     @PostMapping(value = "addAnalysisLogByUrl")
-    public ResponseMessage<AnalysisLog> addByUrl(@RequestBody UrlRequestDto urlRequest){
+    public ResponseMessage<AnalysisLog> addByUrl(@RequestBody UrlRequestDto urlRequest) throws UnknownHostException {
         String inputUrl = urlRequest.getUrl();
         AnalysisLog analysisLogNew = analysisLogService.addByUrl(inputUrl);
         return ResponseMessage.success(analysisLogNew);

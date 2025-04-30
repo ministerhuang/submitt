@@ -30,8 +30,8 @@ public class AnalysisLog {
     @Temporal(TemporalType.TIMESTAMP)
     private Date timestamp;
     //不写
-    @Column(name = "client_ip")
-    private String clientIp;
+    //@Column(name = "client_ip")
+    //private String clientIp;
     //不写
     @Column(name = "website_domain")
     private String websiteDomain;
@@ -119,13 +119,13 @@ public class AnalysisLog {
         this.timestamp = timestamp;
     }
 
-    public String getClientIp() {
-        return clientIp;
-    }
-
-    public void setClientIp(String clientIp) {
-        this.clientIp = clientIp;
-    }
+//    public String getClientIp() {
+//        return clientIp;
+//    }
+//
+//    public void setClientIp(String clientIp) {
+//        this.clientIp = clientIp;
+//    }
 
     public String getWebsiteDomain() {
         return websiteDomain;
@@ -209,7 +209,7 @@ public class AnalysisLog {
                 ", processingTimeMs=" + processingTimeMs +
                 ", modelId=" + modelId +
                 ", timestamp=" + timestamp +
-                ", clientIp='" + clientIp + '\'' +
+                //", clientIp='" + clientIp + '\'' +
                 ", websiteDomain='" + websiteDomain + '\'' +
                 ", mediaName='" + mediaName + '\'' +
                 ", mediaBiasRating='" + mediaBiasRating + '\'' +

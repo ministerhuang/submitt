@@ -22,6 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.*;
 
 @Service
@@ -93,7 +96,7 @@ public class AnalysisLogService implements IAnalysisLogService {
     }
 
     @Override
-    public AnalysisLog addByUrl(String inputUrl) {
+    public AnalysisLog addByUrl(String inputUrl) throws UnknownHostException {
         long startTime = System.currentTimeMillis();
         System.out.println(inputUrl);
         AnalysisLog analysisLog = new AnalysisLog();
@@ -142,6 +145,26 @@ public class AnalysisLogService implements IAnalysisLogService {
         Date now = new Date();
         analysisLog.setTimestamp(now);
         analysisLog.setProcessingTimeMs((int) duration);
+
+        String host = null;
+        try {
+            URL url = new URL(inputUrl);  // 解析 URL
+            host = url.getHost();         // 获取 host
+        } catch (Exception e) {
+            // 如果发生异常，则 host 保持为 null
+        }
+
+        if (host != null) {
+
+            try {
+                // 获取 IP 地址
+                InetAddress address = InetAddress.getByName(host);
+                String ipAddress = address.getHostAddress(); // 将 IP 地址转换为字符串
+                analysisLog.setWebsiteDomain(ipAddress);
+            } catch (Exception e) {
+                System.out.println("Unable to resolve IP address.");
+            }
+        }
 
         System.out.println("Success for ："+analysisLog.getAnalysisType());
         return analysisLogRepository.save(analysisLog);
