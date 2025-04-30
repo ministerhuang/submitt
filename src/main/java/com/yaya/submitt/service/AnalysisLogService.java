@@ -80,10 +80,19 @@ public class AnalysisLogService implements IAnalysisLogService {
             long endTime = System.currentTimeMillis();
             long duration = endTime - startTime; // 毫秒
             // 将 duration 转换为 int
+            float score = newsResponse.getScore();
+            String label = newsResponse.getLabel();
+
+            if(Objects.equals(label, "AI-generated")){
+                score = score*100;
+            } else{
+                score = (1-score)*100;
+            }
 
             analysisLog.setAnalysisType("News Analysis");
-            analysisLog.setResultSummary(newsResponse.getLabel());
-            analysisLog.setConfidenceScore(newsResponse.getScore());
+            analysisLog.setResultSummary(label);
+
+            analysisLog.setConfidenceScore(score);
             analysisLog.setModelId(1);
             Date now = new Date();
             analysisLog.setTimestamp(now);
@@ -98,6 +107,7 @@ public class AnalysisLogService implements IAnalysisLogService {
 
     @Override
     public AnalysisLog addByUrl(String inputUrl) throws UnknownHostException {
+        int score = 0;
         long startTime = System.currentTimeMillis();
         System.out.println(inputUrl);
         AnalysisLog analysisLog = new AnalysisLog();
@@ -107,6 +117,7 @@ public class AnalysisLogService implements IAnalysisLogService {
         String sslResult = null;
         if (inputUrl.startsWith("http://")) {
             sslResult = "http";
+            score+= 20;
         }
         else{
             if (!inputUrl.startsWith("https://")){
@@ -117,20 +128,35 @@ public class AnalysisLogService implements IAnalysisLogService {
             urlResultNew.setSslCaResult(analysisSsl.get("issuerAnalysis"));
             urlResultNew.setSslKeyResult(analysisSsl.get("cryptoAnalysis"));
             urlResultNew.setSslValidityResult(analysisSsl.get("validityAnalysis"));
-
+            score+= analyzer.getCa_score();
+            score+= analyzer.getValidity_score();
         }
 
         if (GoogleSafeService.checkUrlSafety(inputUrl) == 1){
             urlResultNew.setGoogleResult("From Google Safe Service, result is safe");
+            score += 30;
         }
         else{
             urlResultNew.setGoogleResult("From Google Safe Service, result is not safe");
         }
 
         VirusTotalStatsService service = new VirusTotalStatsService();
-        String stats = service.getUrlStats(inputUrl);
 
-        urlResultNew.setOfficialResults(stats);
+        int[] stats = service.getUrlStats(inputUrl);
+
+        String result_status = String.format(
+                "Rated by %d agencies, %d rated as: malicious. %d rated as: suspicious. %d rated as: undetected. %d rated as: harmless.",
+                stats[0], stats[1], stats[2], stats[3], stats[4]
+        );
+
+        float total_agencies = 1;
+
+        if(stats[0] != 0){
+            total_agencies = (float) stats[4] /stats[0];
+        }
+        score+= (int) (40*total_agencies);
+
+        urlResultNew.setOfficialResults(result_status);
 
         analysisLog.setUrlResult(urlResultNew);
         String resultSummary = "";
@@ -142,7 +168,7 @@ public class AnalysisLogService implements IAnalysisLogService {
 
         analysisLog.setAnalysisType("Website Verification");
         analysisLog.setResultSummary(resultSummary);
-        analysisLog.setConfidenceScore(confidenceScore);
+        analysisLog.setConfidenceScore((float) score);
         Date now = new Date();
         analysisLog.setTimestamp(now);
         analysisLog.setProcessingTimeMs((int) duration);

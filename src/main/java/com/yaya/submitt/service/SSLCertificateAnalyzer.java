@@ -16,6 +16,24 @@ import java.util.concurrent.TimeUnit;
  * Service for analyzing SSL certificates of domains
  */
 public class SSLCertificateAnalyzer {
+    private int ca_score = 0;
+    private int validity_score = 0;
+
+    public int getCa_score() {
+        return ca_score;
+    }
+
+    public void setCa_score(int ca_score) {
+        this.ca_score = ca_score;
+    }
+
+    public int getValidity_score() {
+        return validity_score;
+    }
+
+    public void setValidity_score(int validity_score) {
+        this.validity_score = validity_score;
+    }
 
     private static final Set<String> TRUSTED_CAS = new HashSet<>(Arrays.asList(
             "CN=DigiCert", "CN=Let's Encrypt", "CN=Sectigo",
@@ -136,16 +154,22 @@ public class SSLCertificateAnalyzer {
         // Build advice
         String advice = "";
         if (now.after(notAfter)) {
+            setValidity_score(0);
             advice = "Certificate has expired. Security risk.";
         } else if (now.before(notBefore)) {
+            setValidity_score(0);
             advice = "Certificate not yet valid. Suspicious configuration.";
         } else if (certAgeDays < 7 && totalValidityDays < 90) {
             advice = "Recently issued short-term certificate. Potentially suspicious.";
+            setValidity_score(1);
         } else if (certAgeDays < 30) {
+            setValidity_score(3);
             advice = "Recently issued certificate. Monitor for suspicious activity.";
         } else if (TimeUnit.MILLISECONDS.toDays(notAfter.getTime() - now.getTime()) < 30) {
+            setValidity_score(3);
             advice = "Certificate expiring soon. Renewal recommended.";
         } else {
+            setValidity_score(20);
             advice = "Certificate validity period is normal.";
         }
 
@@ -192,6 +216,9 @@ public class SSLCertificateAnalyzer {
 
         if (!hasWeakness) {
             advice = "Cryptographic configuration is strong.";
+            setCa_score(10);
+        } else{
+            setCa_score(5);
         }
 
         return "Key algorithm: " + keyAlgorithm + " (" + keySize + " bits)" +

@@ -37,7 +37,7 @@ public class VirusTotalStatsService {
      * @param url 要检测的URL
      * @return 仅包含统计信息的Map
      */
-    public String getUrlStats(String url) {
+    public int[] getUrlStats(String url) {
         try {
             // 提交URL进行扫描
             String analysisId = submitUrlForScanning(url);
@@ -58,18 +58,13 @@ public class VirusTotalStatsService {
             // 计算总评级机构数量
             int totalAgencies = malicious + suspicious + undetected + harmless + timeout;
 
-            // 构建格式化的英文结果
-            String result = String.format(
-                    "Rated by %d agencies, %d rated as: malicious. %d rated as: suspicious. %d rated as: undetected. %d rated as: harmless.",
-                    totalAgencies, malicious, suspicious, undetected, harmless
-            );
-
-            return result;
+            // 返回一个包含所有数据的数组
+            return new int[]{totalAgencies, malicious, suspicious, undetected, harmless, timeout};
 
         } catch (Exception e) {
             e.printStackTrace();
-            // 出错时返回失败信息
-            return "Failed to retrieve results.";
+            // 出错时返回一个包含0的数组
+            return new int[]{0, 0, 0, 0, 0, 0};
         }
     }
 
