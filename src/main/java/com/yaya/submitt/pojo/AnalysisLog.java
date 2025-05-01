@@ -49,6 +49,9 @@ public class AnalysisLog {
     private String captureDate;
 
     @Transient
+    private float TextBiasScore;
+
+    @Transient
     private String location;
 
     @Transient
@@ -59,6 +62,9 @@ public class AnalysisLog {
 
     @Transient
     private urlResult urlResult;
+
+    @Transient
+    private TextBiasResponse textBiasResult;
 
 
     // Getters and Setters
@@ -197,6 +203,22 @@ public class AnalysisLog {
 
     public void setUrlResult(urlResult urlResult) {
         this.urlResult = urlResult;
+    }
+
+    public TextBiasResponse getTextBiasResult() {
+        return textBiasResult;
+    }
+
+    public void setTextBiasResult(TextBiasResponse textBiasResult) {
+        this.textBiasResult = textBiasResult;
+    }
+
+    public float getTextBiasScore() {
+        return TextBiasScore;
+    }
+
+    public void setTextBiasScore(float textBiasScore) {
+        TextBiasScore = textBiasScore;
     }
 
     @Override

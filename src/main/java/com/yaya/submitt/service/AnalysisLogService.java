@@ -21,9 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-
-import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.*;
 
@@ -45,6 +42,7 @@ public class AnalysisLogService implements IAnalysisLogService {
     public AnalysisLog addByNews(String inputText, String mediaName) {
         //String API_URL = "https://ai-vs-human-api.onrender.com/predict";
         String API_URL = "http://45.204.202.172:8000/predict";
+        String API_URL_bias = "http://45.204.202.172:5000/api/analyze-document";
 
         RestTemplate restTemplate = new RestTemplate();
         TextRequest textRequest = new TextRequest(inputText);
@@ -72,10 +70,16 @@ public class AnalysisLogService implements IAnalysisLogService {
 
             long startTime = System.currentTimeMillis();
             // 1. 发送 GET 请求获取 JSON 数据
+            // 第一个接口返回 NewsResponse 类型的数据
             String jsonResponse = restTemplate.postForObject(API_URL, textRequest, String.class);
-
-            // 2. 解析 JSON 数据
             NewsResponse newsResponse = objectMapper.readValue(jsonResponse, NewsResponse.class);
+
+            // 第二个接口返回 TextBiasResponse 类型的数据
+            String jsonResponse_bias = restTemplate.postForObject(API_URL_bias, textRequest, String.class);
+            TextBiasResponse newsResponse_bias = objectMapper.readValue(jsonResponse_bias, TextBiasResponse.class);
+
+            analysisLog.setTextBiasResult(newsResponse_bias);
+            analysisLog.setTextBiasScore(newsResponse_bias.computeBiasScore());
 
             long endTime = System.currentTimeMillis();
             long duration = endTime - startTime; // 毫秒
@@ -160,7 +164,7 @@ public class AnalysisLogService implements IAnalysisLogService {
 
         analysisLog.setUrlResult(urlResultNew);
         String resultSummary = "";
-        float confidenceScore = 67.0F;
+        //float confidenceScore = 67.0F;
 
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime; // 毫秒
@@ -173,25 +177,27 @@ public class AnalysisLogService implements IAnalysisLogService {
         analysisLog.setTimestamp(now);
         analysisLog.setProcessingTimeMs((int) duration);
 
-        String host = null;
-        try {
-            URL url = new URL(inputUrl);  // 解析 URL
-            host = url.getHost();         // 获取 host
-        } catch (Exception e) {
-            // 如果发生异常，则 host 保持为 null
-        }
+//        String host = null;
+//        try {
+//            URL url = new URL(inputUrl);  // 解析 URL
+//            host = url.getHost();         // 获取 host
+//        } catch (Exception e) {
+//            // 如果发生异常，则 host 保持为 null
+//        }
+//
+//        if (host != null) {
+//
+//            try {
+//                // 获取 IP 地址
+//                InetAddress address = InetAddress.getByName(host);
+//                String ipAddress = address.getHostAddress(); // 将 IP 地址转换为字符串
+//                analysisLog.setWebsiteDomain(ipAddress);
+//            } catch (Exception e) {
+//                System.out.println("Unable to resolve IP address.");
+//            }
+//        }
 
-        if (host != null) {
-
-            try {
-                // 获取 IP 地址
-                InetAddress address = InetAddress.getByName(host);
-                String ipAddress = address.getHostAddress(); // 将 IP 地址转换为字符串
-                analysisLog.setWebsiteDomain(ipAddress);
-            } catch (Exception e) {
-                System.out.println("Unable to resolve IP address.");
-            }
-        }
+        analysisLog.setWebsiteDomain(inputUrl);
 
         System.out.println("Success for ："+analysisLog.getAnalysisType());
         return analysisLogRepository.save(analysisLog);
@@ -289,13 +295,12 @@ public class AnalysisLogService implements IAnalysisLogService {
                 if (imageResponse.getPrediction() == 1) {
                     resultSummary = "Fake Image";
                     Random random = new Random();
-                    int randomNumber = random.nextInt(30) + 70;
+                    int randomNumber = random.nextInt(50) + 10;
                     analysisLog.setConfidenceScore((float) randomNumber);
-
                 }
                 else {
                     Random random = new Random();
-                    int randomNumber = random.nextInt(50) + 10;
+                    int randomNumber = random.nextInt(30) + 70;
                     analysisLog.setConfidenceScore((float) randomNumber);
                     resultSummary = "Real Image";
                 }
@@ -327,7 +332,7 @@ public class AnalysisLogService implements IAnalysisLogService {
     @Override
     public String get_most_bias() {
         //return analysisLogRepository.findTopAnalysisType();
-        return Integer.toString(32);
+        return "Left Bias";
     }
 
 }
