@@ -1,6 +1,7 @@
 package com.yaya.submitt.pojo.dto;
 
 public class TextRequestDto {
+    private String clientIp;
     private String text;
     private String mediaName;
 
@@ -19,5 +20,13 @@ public class TextRequestDto {
 
     public void setMediaName(String mediaName) {
         this.mediaName = mediaName;
+    }
+
+    public String getClientIp() {
+        return clientIp;
+    }
+
+    public void setClientIp(String clientIp) {
+        this.clientIp = clientIp;
     }
 }

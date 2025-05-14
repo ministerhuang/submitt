@@ -8,9 +8,9 @@ import java.net.UnknownHostException;
 
 public interface  IAnalysisLogService {
     AnalysisLog add(AnalysisLogDto analysislog);
-    AnalysisLog addByNews(String inputText, String mediaName);
+    AnalysisLog addByNews(String inputText, String mediaName, String clientIp);
 
-    AnalysisLog addByUrl(String urlRequest) throws UnknownHostException;
+    AnalysisLog addByUrl(String urlRequest, String clientIp) throws UnknownHostException;
 
     AnalysisLog addByImage(MultipartFile file);
 

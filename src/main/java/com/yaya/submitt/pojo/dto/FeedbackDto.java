@@ -1,10 +1,13 @@
 package com.yaya.submitt.pojo.dto;
 
+import jakarta.persistence.Column;
+
 import java.util.Date;
 
 public class FeedbackDto {
     private Integer feeId;
-    private Integer logId;
+    private String clientIp;
+    private String analysisType;
     private Integer feedbackRating;
     private String feedbackComment;
     private Date timestamp;
@@ -19,12 +22,20 @@ public class FeedbackDto {
         this.feeId = feeId;
     }
 
-    public Integer getLogId() {
-        return logId;
+    public String getClintIp() {
+        return clientIp;
     }
 
-    public void setLogId(Integer logId) {
-        this.logId = logId;
+    public void setClintIp(String clintIp) {
+        this.clientIp = clintIp;
+    }
+
+    public String getAnalysisType() {
+        return analysisType;
+    }
+
+    public void setAnalysisType(String analysisType) {
+        this.analysisType = analysisType;
     }
 
     public Integer getFeedbackRating() {
@@ -55,7 +66,8 @@ public class FeedbackDto {
     public String toString() {
         return "FeedbackDto{" +
                 "feeId=" + feeId +
-                ", logId=" + logId +
+                ", clintIp='" + clientIp + '\'' +
+                ", analysisType='" + analysisType + '\'' +
                 ", feedbackRating=" + feedbackRating +
                 ", feedbackComment='" + feedbackComment + '\'' +
                 ", timestamp=" + timestamp +

@@ -39,16 +39,17 @@ public class AnalysisLogService implements IAnalysisLogService {
     }
 
     @Override
-    public AnalysisLog addByNews(String inputText, String mediaName) {
+    public AnalysisLog addByNews(String inputText, String mediaName, String clientIp) {
         //String API_URL = "https://ai-vs-human-api.onrender.com/predict";
-        String API_URL = "http://45.204.202.172:8000/predict";
-        String API_URL_bias = "http://45.204.202.172:5000/api/analyze-document";
+        String API_URL = "http://149.104.27.148:8000/predict";
+        String API_URL_bias = "http://149.104.27.148:5000/api/analyze-document";
 
         RestTemplate restTemplate = new RestTemplate();
         TextRequest textRequest = new TextRequest(inputText);
         ObjectMapper objectMapper = new ObjectMapper();
 
         AnalysisLog analysisLog = new AnalysisLog();
+        analysisLog.setClientIp(clientIp);
 
         try {
             if (mediaName != null) {
@@ -110,13 +111,14 @@ public class AnalysisLogService implements IAnalysisLogService {
     }
 
     @Override
-    public AnalysisLog addByUrl(String inputUrl) throws UnknownHostException {
+    public AnalysisLog addByUrl(String inputUrl, String clientIp) throws UnknownHostException {
         int score = 0;
         long startTime = System.currentTimeMillis();
         System.out.println(inputUrl);
         AnalysisLog analysisLog = new AnalysisLog();
         SSLCertificateAnalyzer analyzer = new SSLCertificateAnalyzer();
         urlResult urlResultNew = new urlResult();
+        analysisLog.setClientIp(clientIp);
 
         String sslResult = null;
         if (inputUrl.startsWith("http://")) {
@@ -158,11 +160,12 @@ public class AnalysisLogService implements IAnalysisLogService {
         if(stats[0] != 0){
             total_agencies = (float) stats[4] /stats[0];
         }
-        score+= (int) (40*total_agencies);
+        score+= (int) (10*total_agencies);
 
         urlResultNew.setOfficialResults(result_status);
 
         analysisLog.setUrlResult(urlResultNew);
+
         String resultSummary = "";
         //float confidenceScore = 67.0F;
 
@@ -206,7 +209,7 @@ public class AnalysisLogService implements IAnalysisLogService {
     @Override
     public AnalysisLog addByImage(MultipartFile file) {
         //String API_URL = "https://mini-vgg-model.onrender.com/predict";
-        String API_URL = "http://45.204.202.172:5001/predict";
+        String API_URL = "http://149.104.27.148:5001/predict";
         RestTemplate restTemplate = new RestTemplate();
         ObjectMapper objectMapper = new ObjectMapper();
         String resultSummary = "";
@@ -292,17 +295,27 @@ public class AnalysisLogService implements IAnalysisLogService {
                 long endTime = System.currentTimeMillis();
                 long duration = endTime - startTime; // 毫秒
 
-                if (imageResponse.getPrediction() == 1) {
-                    resultSummary = "Fake Image";
-                    Random random = new Random();
-                    int randomNumber = random.nextInt(50) + 10;
-                    analysisLog.setConfidenceScore((float) randomNumber);
+                if (imageResponse.getPredicted_class() == 1) {
+                    resultSummary = "Real Image";
+                    float confidence = imageResponse.getConfidence();
+                    if(confidence> 0.5)
+                    {
+                        confidence = confidence*100;
+                    } else{
+                        confidence = (1-confidence)*100;
+                    }
+                    analysisLog.setConfidenceScore(confidence);
                 }
                 else {
-                    Random random = new Random();
-                    int randomNumber = random.nextInt(30) + 70;
-                    analysisLog.setConfidenceScore((float) randomNumber);
-                    resultSummary = "Real Image";
+                    float confidence = imageResponse.getConfidence();
+                    if(confidence> 0.5)
+                    {
+                        confidence = confidence*100;
+                    } else{
+                        confidence = (1-confidence)*100;
+                    }
+                    analysisLog.setConfidenceScore(confidence);
+                    resultSummary = "Fake Image";
                 }
                 analysisLog.setResultSummary(resultSummary);
                 analysisLog.setProcessingTimeMs((int) duration);

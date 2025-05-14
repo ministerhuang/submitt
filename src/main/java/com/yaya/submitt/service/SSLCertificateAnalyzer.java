@@ -173,8 +173,8 @@ public class SSLCertificateAnalyzer {
             advice = "Certificate validity period is normal.";
         }
 
-        return "Valid until: " + sdf.format(notAfter) +
-                ". Issued on: " + sdf.format(notBefore) +
+        return "SSL Start on: " + sdf.format(notBefore) +
+                ". Valid until: " + sdf.format(notAfter) +
                 ". Advice: " + advice;
     }
 

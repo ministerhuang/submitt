@@ -2,21 +2,27 @@ package com.yaya.submitt.controller;
 
 import com.yaya.submitt.pojo.AnalysisLog;
 import com.yaya.submitt.pojo.ResponseMessage;
+import com.yaya.submitt.pojo.SaveAnalysisLog;
 import com.yaya.submitt.pojo.dto.AnalysisLogDto;
 import com.yaya.submitt.pojo.dto.TextRequestDto;
 import com.yaya.submitt.pojo.dto.UrlRequestDto;
 import com.yaya.submitt.service.IAnalysisLogService;
+import com.yaya.submitt.service.ISaveAnalysisLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.UnknownHostException;
+import java.util.Date;
 
 @RestController //接口方法返回对象，转换成json格式
 @RequestMapping("/analysislog") //localhost:8088/analysislog/
 public class AnalysisLogController {
     @Autowired
     IAnalysisLogService analysisLogService;
+
+    @Autowired
+    ISaveAnalysisLogService saveAnalysisLog;
 
     //增加
     @PostMapping(value = "addAnalysisLog")   //URL: localhost:8088/analysislog/addAnalysisLog   method:post
@@ -29,16 +35,36 @@ public class AnalysisLogController {
     public ResponseMessage<AnalysisLog> addByNews(@RequestBody TextRequestDto textRequest){
         //String inputText = textRequest.getText();
         String inputText = textRequest.getText();
+        String clientIp = textRequest.getClientIp();
         // 获取mediaName值
         String mediaName = textRequest.getMediaName();
-        AnalysisLog analysisLogNew = analysisLogService.addByNews(inputText, mediaName);
+        AnalysisLog analysisLogNew = analysisLogService.addByNews(inputText, mediaName, clientIp);
+
+        SaveAnalysisLog saveAnalysisLogNew = new SaveAnalysisLog();
+        saveAnalysisLogNew.setAnalysisLog(analysisLogNew);
+        Date now = new Date();
+        saveAnalysisLogNew.setTimestamp(now);
+        saveAnalysisLogNew.setClientIp(clientIp);
+        saveAnalysisLogNew.setAnalysisType(analysisLogNew.getAnalysisType());
+        saveAnalysisLog.add(saveAnalysisLogNew);
+
         return ResponseMessage.success(analysisLogNew);
     }
 
     @PostMapping(value = "addAnalysisLogByUrl")
     public ResponseMessage<AnalysisLog> addByUrl(@RequestBody UrlRequestDto urlRequest) throws UnknownHostException {
         String inputUrl = urlRequest.getUrl();
-        AnalysisLog analysisLogNew = analysisLogService.addByUrl(inputUrl);
+        String clientIp = urlRequest.getClientIp();
+        AnalysisLog analysisLogNew = analysisLogService.addByUrl(inputUrl, clientIp);
+
+        SaveAnalysisLog saveAnalysisLogNew = new SaveAnalysisLog();
+        saveAnalysisLogNew.setAnalysisLog(analysisLogNew);
+        Date now = new Date();
+        saveAnalysisLogNew.setTimestamp(now);
+        saveAnalysisLogNew.setClientIp(clientIp);
+        saveAnalysisLogNew.setAnalysisType(analysisLogNew.getAnalysisType());
+        saveAnalysisLog.add(saveAnalysisLogNew);
+
         return ResponseMessage.success(analysisLogNew);
     }
 

@@ -5,14 +5,17 @@ import java.util.Date;
 
 @Table(name = "FEEDBACK")
 @Entity
-public class Feedback {
+public class FeedBack {
     @Id
     @Column(name = "fee_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer feeId;
 
-    @Column(name = "log_id")
-    private Integer logId;
+    @Column(name = "client_ip")
+    private String clientIp;
+
+    @Column(name = "analysis_type")
+    private String analysisType;
 
     @Column(name = "feedback_rating")
     private Integer feedbackRating;
@@ -34,12 +37,20 @@ public class Feedback {
         this.feeId = feeId;
     }
 
-    public Integer getLogId() {
-        return logId;
+    public String getClintIp() {
+        return clientIp;
     }
 
-    public void setLogId(Integer logId) {
-        this.logId = logId;
+    public void setClintIp(String clintIp) {
+        this.clientIp = clintIp;
+    }
+
+    public String getAnalysisType() {
+        return analysisType;
+    }
+
+    public void setAnalysisType(String analysisType) {
+        this.analysisType = analysisType;
     }
 
     public Integer getFeedbackRating() {
@@ -70,7 +81,8 @@ public class Feedback {
     public String toString() {
         return "Feedback{" +
                 "feeId=" + feeId +
-                ", logId=" + logId +
+                ", clintIp='" + clientIp + '\'' +
+                ", analysisType='" + analysisType + '\'' +
                 ", feedbackRating=" + feedbackRating +
                 ", feedbackComment='" + feedbackComment + '\'' +
                 ", timestamp=" + timestamp +
