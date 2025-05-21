@@ -39,7 +39,7 @@ public class AnalysisLogService implements IAnalysisLogService {
     }
 
     @Override
-    public AnalysisLog addByNews(String inputText, String mediaName, String clientIp) {
+    public AnalysisLog addByNews(String inputText, String mediaName) {
         //String API_URL = "https://ai-vs-human-api.onrender.com/predict";
         String API_URL = "http://149.104.27.148:8000/predict";
         String API_URL_bias = "http://149.104.27.148:5000/api/analyze-document";
@@ -49,7 +49,7 @@ public class AnalysisLogService implements IAnalysisLogService {
         ObjectMapper objectMapper = new ObjectMapper();
 
         AnalysisLog analysisLog = new AnalysisLog();
-        analysisLog.setClientIp(clientIp);
+        //analysisLog.setClientIp(clientIp);
 
         try {
             if (mediaName != null) {
@@ -80,7 +80,7 @@ public class AnalysisLogService implements IAnalysisLogService {
             TextBiasResponse newsResponse_bias = objectMapper.readValue(jsonResponse_bias, TextBiasResponse.class);
 
             analysisLog.setTextBiasResult(newsResponse_bias);
-            analysisLog.setTextBiasScore(newsResponse_bias.computeBiasScore());
+            analysisLog.setTextBiasScore((float) Math.round(newsResponse_bias.computeBiasScore()));
 
             long endTime = System.currentTimeMillis();
             long duration = endTime - startTime; // 毫秒
@@ -97,11 +97,23 @@ public class AnalysisLogService implements IAnalysisLogService {
             analysisLog.setAnalysisType("News Analysis");
             analysisLog.setResultSummary(label);
 
+            score = (float) Math.round(score);
             analysisLog.setConfidenceScore(score);
             analysisLog.setModelId(1);
             Date now = new Date();
             analysisLog.setTimestamp(now);
             analysisLog.setProcessingTimeMs((int) duration);
+
+            String API_URL_CHAT = "https://chatbot-assistant-z3ls.onrender.com/explain";
+
+            UrlChatRequest dto = new UrlChatRequest();
+            BeanUtils.copyProperties(analysisLog, dto);
+
+            UrlResponse newsResponse_new = restTemplate.postForObject(API_URL_CHAT, dto, UrlResponse.class);
+
+            analysisLog.setChatResponse(newsResponse_new.getResponse());
+
+            System.out.println("Success for: " + analysisLog.getAnalysisType());
 
             System.out.println("Success for ："+analysisLog.getAnalysisType());
             return analysisLogRepository.save(analysisLog);
@@ -110,99 +122,138 @@ public class AnalysisLogService implements IAnalysisLogService {
         }
     }
 
+//    @Override
+//    public AnalysisLog addByUrl(String inputUrl, String clientIp) throws UnknownHostException {
+//        int score = 0;
+//        long startTime = System.currentTimeMillis();
+//        System.out.println(inputUrl);
+//        AnalysisLog analysisLog = new AnalysisLog();
+//        SSLCertificateAnalyzer analyzer = new SSLCertificateAnalyzer();
+//        DomainInfo urlResultNew = new DomainInfo();
+//        analysisLog.setClientIp(clientIp);
+//
+//        String sslResult = null;
+//        if (inputUrl.startsWith("http://")) {
+//            sslResult = "http";
+//            score+= 20;
+//        }
+//        else{
+//            if (!inputUrl.startsWith("https://")){
+//                inputUrl = "https://" + inputUrl;
+//            }
+//            Map<String, String> analysisSsl = analyzer.analyzeCertificate(inputUrl);
+//
+//            urlResultNew.setSslCaResult(analysisSsl.get("issuerAnalysis"));
+//            urlResultNew.setSslKeyResult(analysisSsl.get("cryptoAnalysis"));
+//            urlResultNew.setSslValidityResult(analysisSsl.get("validityAnalysis"));
+//            score+= analyzer.getCa_score();
+//            score+= analyzer.getValidity_score();
+//        }
+//
+//        if (GoogleSafeService.checkUrlSafety(inputUrl) == 1){
+//            urlResultNew.setGoogleResult("From Google Safe Service, result is safe");
+//            score += 30;
+//        }
+//        else{
+//            urlResultNew.setGoogleResult("From Google Safe Service, result is not safe");
+//        }
+//
+//        VirusTotalStatsService service = new VirusTotalStatsService();
+//
+//        int[] stats = service.getUrlStats(inputUrl);
+//
+//        String result_status = String.format(
+//                "Rated by %d agencies, %d rated as: malicious. %d rated as: suspicious. %d rated as: undetected. %d rated as: harmless.",
+//                stats[0], stats[1], stats[2], stats[3], stats[4]
+//        );
+//
+//        float total_agencies = 1;
+//
+//        if(stats[0] != 0){
+//            total_agencies = (float) stats[4] /stats[0];
+//        }
+//        score+= (int) (10*total_agencies);
+//
+//        urlResultNew.setOfficialResults(result_status);
+//
+//        analysisLog.setUrlResult(urlResultNew);
+//
+//        String resultSummary = "";
+//        //float confidenceScore = 67.0F;
+//
+//        long endTime = System.currentTimeMillis();
+//        long duration = endTime - startTime; // 毫秒
+//
+//
+//        analysisLog.setAnalysisType("Website Verification");
+//        analysisLog.setResultSummary(resultSummary);
+//        analysisLog.setConfidenceScore((float) score);
+//        Date now = new Date();
+//        analysisLog.setTimestamp(now);
+//        analysisLog.setProcessingTimeMs((int) duration);
+//
+////        String host = null;
+////        try {
+////            URL url = new URL(inputUrl);  // 解析 URL
+////            host = url.getHost();         // 获取 host
+////        } catch (Exception e) {
+////            // 如果发生异常，则 host 保持为 null
+////        }
+////
+////        if (host != null) {
+////
+////            try {
+////                // 获取 IP 地址
+////                InetAddress address = InetAddress.getByName(host);
+////                String ipAddress = address.getHostAddress(); // 将 IP 地址转换为字符串
+////                analysisLog.setWebsiteDomain(ipAddress);
+////            } catch (Exception e) {
+////                System.out.println("Unable to resolve IP address.");
+////            }
+////        }
+//
+//        analysisLog.setWebsiteDomain(inputUrl);
+//
+//        System.out.println("Success for ："+analysisLog.getAnalysisType());
+//        return analysisLogRepository.save(analysisLog);
+//    }
+
     @Override
-    public AnalysisLog addByUrl(String inputUrl, String clientIp) throws UnknownHostException {
-        int score = 0;
+    public AnalysisLog addByUrl(String inputUrl){
+        DomainReportService domainReportService = new DomainReportService();
         long startTime = System.currentTimeMillis();
-        System.out.println(inputUrl);
-        AnalysisLog analysisLog = new AnalysisLog();
-        SSLCertificateAnalyzer analyzer = new SSLCertificateAnalyzer();
-        urlResult urlResultNew = new urlResult();
-        analysisLog.setClientIp(clientIp);
+        AnalysisLog analysisLog= new AnalysisLog();
 
-        String sslResult = null;
-        if (inputUrl.startsWith("http://")) {
-            sslResult = "http";
-            score+= 20;
-        }
-        else{
-            if (!inputUrl.startsWith("https://")){
-                inputUrl = "https://" + inputUrl;
-            }
-            Map<String, String> analysisSsl = analyzer.analyzeCertificate(inputUrl);
+        DomainInfo domainInfo = domainReportService.getDomainReport(inputUrl);
 
-            urlResultNew.setSslCaResult(analysisSsl.get("issuerAnalysis"));
-            urlResultNew.setSslKeyResult(analysisSsl.get("cryptoAnalysis"));
-            urlResultNew.setSslValidityResult(analysisSsl.get("validityAnalysis"));
-            score+= analyzer.getCa_score();
-            score+= analyzer.getValidity_score();
-        }
+        analysisLog.setConfidenceScore(domainInfo.getAllScore());
 
-        if (GoogleSafeService.checkUrlSafety(inputUrl) == 1){
-            urlResultNew.setGoogleResult("From Google Safe Service, result is safe");
-            score += 30;
-        }
-        else{
-            urlResultNew.setGoogleResult("From Google Safe Service, result is not safe");
-        }
-
-        VirusTotalStatsService service = new VirusTotalStatsService();
-
-        int[] stats = service.getUrlStats(inputUrl);
-
-        String result_status = String.format(
-                "Rated by %d agencies, %d rated as: malicious. %d rated as: suspicious. %d rated as: undetected. %d rated as: harmless.",
-                stats[0], stats[1], stats[2], stats[3], stats[4]
-        );
-
-        float total_agencies = 1;
-
-        if(stats[0] != 0){
-            total_agencies = (float) stats[4] /stats[0];
-        }
-        score+= (int) (10*total_agencies);
-
-        urlResultNew.setOfficialResults(result_status);
-
-        analysisLog.setUrlResult(urlResultNew);
+        analysisLog.setUrlResult(domainInfo);
 
         String resultSummary = "";
-        //float confidenceScore = 67.0F;
 
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime; // 毫秒
 
-
         analysisLog.setAnalysisType("Website Verification");
         analysisLog.setResultSummary(resultSummary);
-        analysisLog.setConfidenceScore((float) score);
+
         Date now = new Date();
         analysisLog.setTimestamp(now);
         analysisLog.setProcessingTimeMs((int) duration);
 
-//        String host = null;
-//        try {
-//            URL url = new URL(inputUrl);  // 解析 URL
-//            host = url.getHost();         // 获取 host
-//        } catch (Exception e) {
-//            // 如果发生异常，则 host 保持为 null
-//        }
-//
-//        if (host != null) {
-//
-//            try {
-//                // 获取 IP 地址
-//                InetAddress address = InetAddress.getByName(host);
-//                String ipAddress = address.getHostAddress(); // 将 IP 地址转换为字符串
-//                analysisLog.setWebsiteDomain(ipAddress);
-//            } catch (Exception e) {
-//                System.out.println("Unable to resolve IP address.");
-//            }
-//        }
+        String API_URL = "https://chatbot-assistant-z3ls.onrender.com/explain";
+        RestTemplate restTemplate = new RestTemplate();
 
-        analysisLog.setWebsiteDomain(inputUrl);
+        UrlChatRequest dto = new UrlChatRequest();
+        BeanUtils.copyProperties(analysisLog, dto);
 
-        System.out.println("Success for ："+analysisLog.getAnalysisType());
+
+        UrlResponse newsResponse = restTemplate.postForObject(API_URL, dto, UrlResponse.class);
+
+        analysisLog.setChatResponse(newsResponse.getResponse());
+
+
         return analysisLogRepository.save(analysisLog);
     }
 
@@ -270,6 +321,16 @@ public class AnalysisLogService implements IAnalysisLogService {
 
                 analysisLog.setConfidenceScore((float) randomNumber);
 
+                String API_URL_CHAT = "https://chatbot-assistant-z3ls.onrender.com/explain";
+
+                UrlChatRequest dto = new UrlChatRequest();
+                BeanUtils.copyProperties(analysisLog, dto);
+
+
+                UrlResponse newsResponse = restTemplate.postForObject(API_URL_CHAT, dto, UrlResponse.class);
+
+                analysisLog.setChatResponse(newsResponse.getResponse());
+
                 System.out.println("Success for: " + analysisLog.getAnalysisType());
 
                 return analysisLogRepository.save(analysisLog);
@@ -304,6 +365,7 @@ public class AnalysisLogService implements IAnalysisLogService {
                     } else{
                         confidence = (1-confidence)*100;
                     }
+                    confidence = (float) Math.round(confidence);
                     analysisLog.setConfidenceScore(confidence);
                 }
                 else {
@@ -314,11 +376,22 @@ public class AnalysisLogService implements IAnalysisLogService {
                     } else{
                         confidence = (1-confidence)*100;
                     }
+                    confidence = (float) Math.round(confidence);
                     analysisLog.setConfidenceScore(confidence);
                     resultSummary = "Fake Image";
                 }
                 analysisLog.setResultSummary(resultSummary);
                 analysisLog.setProcessingTimeMs((int) duration);
+
+                String API_URL_CHAT = "https://chatbot-assistant-z3ls.onrender.com/explain";
+
+                UrlChatRequest dto = new UrlChatRequest();
+                BeanUtils.copyProperties(analysisLog, dto);
+
+                UrlResponse newsResponse = restTemplate.postForObject(API_URL_CHAT, dto, UrlResponse.class);
+
+                analysisLog.setChatResponse(newsResponse.getResponse());
+
                 System.out.println("Success for: " + analysisLog.getAnalysisType());
 
                 return analysisLogRepository.save(analysisLog);

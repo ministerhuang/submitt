@@ -35,18 +35,17 @@ public class AnalysisLogController {
     public ResponseMessage<AnalysisLog> addByNews(@RequestBody TextRequestDto textRequest){
         //String inputText = textRequest.getText();
         String inputText = textRequest.getText();
-        String clientIp = textRequest.getClientIp();
         // 获取mediaName值
         String mediaName = textRequest.getMediaName();
-        AnalysisLog analysisLogNew = analysisLogService.addByNews(inputText, mediaName, clientIp);
+        AnalysisLog analysisLogNew = analysisLogService.addByNews(inputText, mediaName);
 
-        SaveAnalysisLog saveAnalysisLogNew = new SaveAnalysisLog();
-        saveAnalysisLogNew.setAnalysisLog(analysisLogNew);
-        Date now = new Date();
-        saveAnalysisLogNew.setTimestamp(now);
-        saveAnalysisLogNew.setClientIp(clientIp);
-        saveAnalysisLogNew.setAnalysisType(analysisLogNew.getAnalysisType());
-        saveAnalysisLog.add(saveAnalysisLogNew);
+//        SaveAnalysisLog saveAnalysisLogNew = new SaveAnalysisLog();
+//        saveAnalysisLogNew.setAnalysisLog(analysisLogNew);
+//        Date now = new Date();
+//        saveAnalysisLogNew.setTimestamp(now);
+//        saveAnalysisLogNew.setClientIp(clientIp);
+//        saveAnalysisLogNew.setAnalysisType(analysisLogNew.getAnalysisType());
+//        analysisLogService.add(analysisLogNew);
 
         return ResponseMessage.success(analysisLogNew);
     }
@@ -55,15 +54,15 @@ public class AnalysisLogController {
     public ResponseMessage<AnalysisLog> addByUrl(@RequestBody UrlRequestDto urlRequest) throws UnknownHostException {
         String inputUrl = urlRequest.getUrl();
         String clientIp = urlRequest.getClientIp();
-        AnalysisLog analysisLogNew = analysisLogService.addByUrl(inputUrl, clientIp);
+        AnalysisLog analysisLogNew = analysisLogService.addByUrl(inputUrl);
 
-        SaveAnalysisLog saveAnalysisLogNew = new SaveAnalysisLog();
-        saveAnalysisLogNew.setAnalysisLog(analysisLogNew);
-        Date now = new Date();
-        saveAnalysisLogNew.setTimestamp(now);
-        saveAnalysisLogNew.setClientIp(clientIp);
-        saveAnalysisLogNew.setAnalysisType(analysisLogNew.getAnalysisType());
-        saveAnalysisLog.add(saveAnalysisLogNew);
+//        SaveAnalysisLog saveAnalysisLogNew = new SaveAnalysisLog();
+//        saveAnalysisLogNew.setAnalysisLog(analysisLogNew);
+//        Date now = new Date();
+//        saveAnalysisLogNew.setTimestamp(now);
+//        saveAnalysisLogNew.setClientIp(clientIp);
+//        saveAnalysisLogNew.setAnalysisType(analysisLogNew.getAnalysisType());
+//        saveAnalysisLog.add(saveAnalysisLogNew);
 
         return ResponseMessage.success(analysisLogNew);
     }

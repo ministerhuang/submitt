@@ -22,12 +22,12 @@ public class FeedbackDto {
         this.feeId = feeId;
     }
 
-    public String getClintIp() {
+    public String getClientIp() {
         return clientIp;
     }
 
-    public void setClintIp(String clintIp) {
-        this.clientIp = clintIp;
+    public void setClientIp(String clientIp) {
+        this.clientIp = clientIp;
     }
 
     public String getAnalysisType() {
@@ -66,7 +66,7 @@ public class FeedbackDto {
     public String toString() {
         return "FeedbackDto{" +
                 "feeId=" + feeId +
-                ", clintIp='" + clientIp + '\'' +
+                ", clientIp='" + clientIp + '\'' +
                 ", analysisType='" + analysisType + '\'' +
                 ", feedbackRating=" + feedbackRating +
                 ", feedbackComment='" + feedbackComment + '\'' +

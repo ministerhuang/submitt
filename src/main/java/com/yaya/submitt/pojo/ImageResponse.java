@@ -1,9 +1,9 @@
 package com.yaya.submitt.pojo;
 
 public class ImageResponse {
-    private int predicted_class;
     private float confidence;
-    private String pridected_label;
+    private int predicted_class;
+    private String predicted_label;
 
     // Getter 和 Setter
 
@@ -23,12 +23,12 @@ public class ImageResponse {
         this.confidence = confidence;
     }
 
-    public String getPridected_label() {
-        return pridected_label;
+    public String getpredicted_label() {
+        return predicted_label;
     }
 
-    public void setPridected_label(String pridected_label) {
-        this.pridected_label = pridected_label;
+    public void setpredicted_label(String predicted_label) {
+        this.predicted_label = predicted_label;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class ImageResponse {
         return "ImageResponse{" +
                 "predicted_class=" + predicted_class +
                 ", confidence=" + confidence +
-                ", pridected_label='" + pridected_label + '\'' +
+                ", pridected_label='" + predicted_label + '\'' +
                 '}';
     }
 }
